@@ -14,7 +14,6 @@ class TimezoneController {
   }
 
   getTimezones = async (req: express.Request, res: express.Response) => {
-    throw "heelelleölwe"
     const timezones = await timezoneService.getTimezones(req.user.sub);
     return res.json(timezones)
   }
