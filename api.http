@@ -1,0 +1,15 @@
+###Get all cities
+GET http://localhost:8080/rest/cities?city=Rome&country=It
+Accept: application/json
+###
+
+###Get timezones of user
+GET http://localhost:8080/rest/users/timezones/
+Accept: application/json
+###
+
+###Get timezones of user
+GET http://localhost:8080/rest/timezones/diff/Europe%2FRome/America%2FNew_York
+Accept: application/json
+###
+
