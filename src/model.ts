@@ -1,4 +1,6 @@
 export interface UserTimezone {
   uid: string;
-  timezone: string;
+  timezoneName: string;
+  timezoneCity: string;
+  gmtDifferenceMinutes: number;
 }

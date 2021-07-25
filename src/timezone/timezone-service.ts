@@ -1,27 +1,35 @@
-import moment from 'moment';
 import 'moment-timezone';
+import mongoRepo from "../mongo";
+import { UserTimezone } from "../model";
+
+const voidify = () => {
+  return;
+}
 
 class TimezoneService {
 
-  timeNow = (): number => {
-    return moment().unix()
+
+  coll = () => mongoRepo.db().collection("user_timezones")
+
+  getTimezones = async (uid?: string): Promise<UserTimezone[]> => {
+    const userTimezones: UserTimezone[] = await this.coll().find(uid ? {uid: uid} : {}).toArray();
+    return userTimezones;
   }
 
-  diffInMinutes = (unix: number, from: string, to: string) => {
-    const fromMoment = moment.unix(unix);
-    fromMoment.tz(from);
-
-    const toMoment = moment.unix(unix);
-    toMoment.tz(to);
-
-    const diffInMinutes = fromMoment.utcOffset() - toMoment.utcOffset();
-    return diffInMinutes;
+  addTimezone = async (userTimezone: UserTimezone) => {
+    return this.coll().insertOne(userTimezone).then(voidify)
   }
 
-  timeAt = (unix: number, tz: string): string => {
-    const now = moment.unix(unix);
-    now.tz(tz)
-    return now.toISOString(true);
+  editTimezone = async (userTimezone: UserTimezone) => {
+    const {gmtDifferenceMinutes, timezoneCity} = userTimezone;
+    return this.coll().updateOne({uid: userTimezone.uid, timezoneName: userTimezone.timezoneName},
+      {$set: {timezoneCity, gmtDifferenceMinutes}},
+      {upsert: false})
+    .then(voidify)
+  }
+
+  deleteTimezone = async (uid: string, timezoneName: string) => {
+    return this.coll().deleteOne({uid: uid, timezoneName: timezoneName}).then(voidify)
   }
 }
 

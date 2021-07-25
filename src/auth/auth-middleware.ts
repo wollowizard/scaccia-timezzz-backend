@@ -3,6 +3,7 @@ import jwks from 'jwks-rsa';
 //import express from "express";
 //import _ from "lodash";
 import { domain } from "./config";
+import express from "express";
 //import authService from "./auth-service";
 //import { UserProfile } from "./model";
 
@@ -47,6 +48,18 @@ const checkJwt = jwt({
   issuer: `https://${domain}/`,
   algorithms: ['RS256']
 });
+
+const isAdmin = (user: any) => {
+  const roles = user["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+  return Array.isArray(roles) && roles.includes("Admin");
+}
+
+export const adminMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!isAdmin(req.user)) {
+    return res.status(403).json({"error": "Admin access required"});
+  }
+  return next()
+}
 
 let authMiddlewares = [checkJwt
   //, profileResolver
