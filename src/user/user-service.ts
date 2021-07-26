@@ -10,9 +10,9 @@ class UserService {
     if ("ALL" === search) return this.coll().find().toArray();
     return this.coll().find({
       $or: [
-        {"email": {$regex: search}},
-        {"name": {$regex: search}},
-        {"uid": {$regex: search}}
+        {"email": {$regex: search, $options: 'i'}},
+        {"name": {$regex: search, $options: 'i'}},
+        {"uid": {$regex: search, $options: 'i'}}
       ]
     }).toArray()
   }
