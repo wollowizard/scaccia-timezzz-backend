@@ -1,4 +1,5 @@
 require('dotenv').config()
+const nocache = require('nocache');
 import adminController from "./timezone/admin-controller";
 import timezoneController from "./timezone/timezone-controller";
 import requestLogger from "./request-logger";
@@ -12,6 +13,7 @@ import mongoRepo from "./mongo";
 mongoRepo.init();
 
 const expressApp = express();
+expressApp.use(nocache());
 expressApp.use(requestLogger)
 expressApp.get("/health", healthController)
 expressApp.use(express.json())
