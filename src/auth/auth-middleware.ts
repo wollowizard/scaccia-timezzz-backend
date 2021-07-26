@@ -1,17 +1,16 @@
 import jwt from "express-jwt";
 import jwks from 'jwks-rsa';
-//import express from "express";
-//import _ from "lodash";
 import { domain } from "./config";
 import express from "express";
-//import authService from "./auth-service";
-//import { UserProfile } from "./model";
+import _ from "lodash";
+import authService from "./auth-service";
+import { UserProfile } from "./model";
 
 
 declare global {
   namespace Express {
     interface Request {
-      //userProfile: UserProfile
+      userProfile: UserProfile
       user: {
         sub: string
       }
@@ -19,16 +18,17 @@ declare global {
   }
 }
 
-/*
+
 export const userInfo = (req: express.Request) => {
   return _.pick(req.userProfile, "sub", "email", "name");
-}*/
+}
 
-/*
+
 const profileResolver = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const accessToken = req?.headers?.authorization?.split(' ')[1]!!;
-    const userProfile = await authService.getUser(accessToken);
+    const userProfile: UserProfile = await authService.getUser(accessToken);
+    await authService.upsertUser(userProfile);
     req.userProfile = userProfile;
     next()
   } catch (e) {
@@ -36,7 +36,6 @@ const profileResolver = async (req: express.Request, res: express.Response, next
   }
 }
 
- */
 const checkJwt = jwt({
   secret: jwks.expressJwtSecret({
     cache: true,
@@ -61,9 +60,7 @@ export const adminMiddleware = (req: express.Request, res: express.Response, nex
   return next()
 }
 
-let authMiddlewares = [checkJwt
-  //, profileResolver
-]
+let authMiddlewares = [checkJwt, profileResolver]
 /*
 if (process.env.ACTIVE_PROFILE === "test") {
   authMiddlewares = [async (req, res, next) => {
