@@ -21,7 +21,7 @@ class AdminController {
   }
 
   getUsers = async (req: express.Request, res: express.Response) => {
-    const search: string = req.query["search"] as string || "ALL";
+    const search: string = req.query["search"] as string || "";
     const users = await userService.getUsers(search);
     return res.json(users)
   }

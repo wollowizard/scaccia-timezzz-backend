@@ -6,6 +6,7 @@ class UserService {
 
 
   getUsers = (search: string): Promise<UserProfile[]> => {
+    if (!search) return Promise.resolve([])
     if ("ALL" === search) return this.coll().find().toArray();
     return this.coll().find({
       $or: [
