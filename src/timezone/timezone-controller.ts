@@ -2,6 +2,7 @@ import express from "express";
 import timezoneService from "./timezone-service";
 import { UserTimezone } from "../model";
 import asyncH from "express-async-handler";
+import { isAdmin } from "../auth/auth-middleware";
 
 class TimezoneController {
   public readonly router = express.Router();
@@ -20,7 +21,7 @@ class TimezoneController {
 
   addTimezone = async (req: express.Request, res: express.Response) => {
     const userTimezone: UserTimezone = req.body;
-    userTimezone.uid = req.user.sub;
+    this.setUid(req, userTimezone)
     await timezoneService.addTimezone(userTimezone);
     const timezones = await timezoneService.getTimezones(req.user.sub);
     return res.json(timezones)
@@ -28,7 +29,7 @@ class TimezoneController {
 
   editTimezone = async (req: express.Request, res: express.Response) => {
     const userTimezone: UserTimezone = req.body;
-    userTimezone.uid = req.user.sub;
+    this.setUid(req, userTimezone)
     await timezoneService.editTimezone(userTimezone);
     const timezones = await timezoneService.getTimezones(req.user.sub);
     return res.json(timezones)
@@ -39,6 +40,12 @@ class TimezoneController {
     await timezoneService.deleteTimezone(req.user.sub, timezoneName);
     const timezones = await timezoneService.getTimezones(req.user.sub);
     return res.json(timezones)
+  }
+
+  setUid = (req: express.Request, userTimezone: UserTimezone) => {
+    if (!isAdmin(req.user) || (isAdmin(req.user) && !userTimezone.uid)) {
+      userTimezone.uid = req.user.sub;
+    }
   }
 }
 

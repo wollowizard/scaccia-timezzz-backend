@@ -49,7 +49,7 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
-const isAdmin = (user: any) => {
+export const isAdmin = (user: any) => {
   const roles = user["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
   return Array.isArray(roles) && roles.includes("Admin");
 }
