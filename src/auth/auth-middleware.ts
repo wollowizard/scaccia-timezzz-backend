@@ -5,6 +5,7 @@ import express from "express";
 import _ from "lodash";
 import authService from "./auth-service";
 import { UserProfile } from "./model";
+import userService from "../user/user-service";
 
 
 declare global {
@@ -28,7 +29,7 @@ const profileResolver = async (req: express.Request, res: express.Response, next
   try {
     const accessToken = req?.headers?.authorization?.split(' ')[1]!!;
     const userProfile: UserProfile = await authService.getUser(accessToken);
-    await authService.upsertUser(userProfile);
+    await userService.upsertUser(userProfile);
     req.userProfile = userProfile;
     next()
   } catch (e) {
