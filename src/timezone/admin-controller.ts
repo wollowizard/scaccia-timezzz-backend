@@ -8,6 +8,7 @@ class AdminController {
 
   constructor() {
     this.router.get('/users/:uid/timezones/', asyncH(this.getTimezonesOfUser));
+    this.router.delete('/users/:uid/timezones/:timezone', asyncH(this.deleteTimezoneOfUser));
     this.router.get('/users/', asyncH(this.getUsers));
   }
 
@@ -17,6 +18,13 @@ class AdminController {
       uid = undefined;
     }
     const timezones = await timezoneService.getTimezones(uid);
+    return res.json(timezones)
+  }
+
+  deleteTimezoneOfUser = async (req: express.Request, res: express.Response) => {
+    let uid: string | undefined = req.params["uid"];
+    let timezone: string | undefined = req.params["timezone"];
+    const timezones = await timezoneService.deleteTimezone(uid, timezone);
     return res.json(timezones)
   }
 
