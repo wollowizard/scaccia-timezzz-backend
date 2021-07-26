@@ -2,38 +2,33 @@ import jwt from "express-jwt";
 import jwks from 'jwks-rsa';
 import { domain } from "./config";
 import express from "express";
-import _ from "lodash";
-import authService from "./auth-service";
 import { UserProfile } from "./model";
 import userService from "../user/user-service";
+import authService from "./auth-service";
 
 
 declare global {
   namespace Express {
     interface Request {
-      userProfile: UserProfile
-      user: {
-        sub: string
-      }
+      user: UserProfile
     }
   }
 }
 
-
-export const userInfo = (req: express.Request) => {
-  return _.pick(req.userProfile, "sub", "email", "name");
+const userSave = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  userService.upsertUser(req.user);
+  next();
 }
-
 
 const profileResolver = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const accessToken = req?.headers?.authorization?.split(' ')[1]!!;
     const userProfile: UserProfile = await authService.getUser(accessToken);
-    await userService.upsertUser(userProfile);
-    req.userProfile = userProfile;
-    next()
+    req.user = {...userProfile, ...req.user};
   } catch (e) {
-    res.status(403).json({"error": "Can't get user profile"})
+    console.info(`Can't get user profile for ${req.user.sub}`)
+  } finally {
+    return next();
   }
 }
 
@@ -61,12 +56,6 @@ export const adminMiddleware = (req: express.Request, res: express.Response, nex
   return next()
 }
 
-let authMiddlewares = [checkJwt, profileResolver]
-/*
-if (process.env.ACTIVE_PROFILE === "test") {
-  authMiddlewares = [async (req, res, next) => {
-    req.userProfile = {sub: "google-oauth2|113300806490854534957"}
-    next()
-  }]
-}*/
+let authMiddlewares = [checkJwt, profileResolver, userSave]
+
 export default authMiddlewares;

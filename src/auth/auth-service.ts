@@ -15,5 +15,5 @@ class AuthService {
     return userProfile;
   }
 }
-
-export default new AuthService();
+const authService = new AuthService();
+export default authService;
