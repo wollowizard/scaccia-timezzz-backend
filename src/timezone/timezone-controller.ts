@@ -1,8 +1,9 @@
 import express from "express";
 import timezoneService from "./timezone-service";
-import { UserTimezone } from "../model";
+import { Timezone, UserTimezone } from "../model";
 import asyncH from "express-async-handler";
 import { isAdmin } from "../auth/auth-middleware";
+import { checkIntegerBetween, checkNonEmptyString } from "../utils/validation-utils";
 
 class TimezoneController {
   public readonly router = express.Router();
@@ -15,37 +16,56 @@ class TimezoneController {
   }
 
   getTimezones = async (req: express.Request, res: express.Response) => {
-    const timezones = await timezoneService.getTimezones(req.user.sub);
+    const uid = this.getUid(req);
+    const timezones = await timezoneService.getTimezones(uid);
     return res.json(timezones)
   }
 
   addTimezone = async (req: express.Request, res: express.Response) => {
-    const userTimezone: UserTimezone = req.body;
-    this.setUid(req, userTimezone)
-    await timezoneService.addTimezone(userTimezone);
-    const timezones = await timezoneService.getTimezones(req.user.sub);
-    return res.json(timezones)
+    const timezone: Timezone = req.body;
+    this.validateTimezone(timezone);
+    const userTimezone = this.addUid(req, timezone);
+    const id: string | null = await timezoneService.addTimezone(userTimezone);
+    return res.json({id})
   }
 
   editTimezone = async (req: express.Request, res: express.Response) => {
-    const userTimezone: UserTimezone = req.body;
-    this.setUid(req, userTimezone)
-    await timezoneService.editTimezone(userTimezone);
-    const timezones = await timezoneService.getTimezones(req.user.sub);
-    return res.json(timezones)
+    const timezone: Timezone = req.body;
+    this.validateTimezone(timezone);
+    const userTimezone = this.addUid(req, timezone);
+    const edited = await timezoneService.editTimezone(userTimezone);
+    return res.json(edited)
   }
 
   deleteTimezone = async (req: express.Request, res: express.Response) => {
+    const uid = this.getUid(req);
     const timezoneName = req.params["timezoneName"];
-    await timezoneService.deleteTimezone(req.user.sub, timezoneName);
-    const timezones = await timezoneService.getTimezones(req.user.sub);
-    return res.json(timezones)
+    await timezoneService.deleteTimezone(uid, timezoneName);
+    return res.end();
   }
 
-  setUid = (req: express.Request, userTimezone: UserTimezone) => {
-    if (!isAdmin(req.user) || (isAdmin(req.user) && !userTimezone.uid)) {
-      userTimezone.uid = req.user.sub;
+  getUid = (req: express.Request): string => {
+    const uidQuery = req.query["uid"] as string;
+    if (uidQuery?.length) {
+      if (!isAdmin(req.user)) {
+        throw "Not admins are not allowed to perform operation for other user";
+      }
+      return uidQuery;
     }
+    return req.user.sub;
+  }
+
+  addUid = (req: express.Request, timezone: Timezone): UserTimezone => {
+    return {
+      ...timezone,
+      uid: this.getUid(req)
+    }
+  }
+
+  validateTimezone = (timezone: Timezone) => {
+    checkNonEmptyString(timezone?.timezoneCity)
+    checkNonEmptyString(timezone?.timezoneName)
+    checkIntegerBetween(timezone?.gmtDifferenceMinutes, -14 * 60, 14 * 60);
   }
 }
 

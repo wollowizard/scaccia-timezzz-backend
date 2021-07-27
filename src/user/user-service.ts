@@ -5,16 +5,18 @@ class UserService {
   coll = () => mongoRepo.db().collection("users")
 
 
-  getUsers = (search: string): Promise<UserProfile[]> => {
-    if (!search) return Promise.resolve([])
-    if ("ALL" === search) return this.coll().find().toArray();
-    return this.coll().find({
-      $or: [
-        {"email": {$regex: search, $options: 'i'}},
-        {"name": {$regex: search, $options: 'i'}},
-        {"uid": {$regex: search, $options: 'i'}}
-      ]
-    }).toArray()
+  getUsers = (search: string, limit: number = 10): Promise<UserProfile[]> => {
+    let filter = {};
+    if (search?.length) {
+      filter = {
+        $or: [
+          {"email": {$regex: search, $options: 'i'}},
+          {"name": {$regex: search, $options: 'i'}},
+          {"uid": {$regex: search, $options: 'i'}}
+        ]
+      }
+    }
+    return this.coll().find(filter).limit(limit).toArray()
   }
 
   upsertUser = (userProfile: UserProfile) => {
