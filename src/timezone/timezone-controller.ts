@@ -48,7 +48,10 @@ class TimezoneController {
     const uidQuery = req.query["uid"] as string;
     if (uidQuery?.length) {
       if (!isAdmin(req.user)) {
-        throw "Not admins are not allowed to perform operation for other user";
+        throw {
+          status: 403,
+          message: "Not admins are not allowed to perform operation for other user"
+        }
       }
       return uidQuery;
     }

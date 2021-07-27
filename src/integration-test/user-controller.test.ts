@@ -2,7 +2,7 @@ import { BASE_URL, createAdminHeader, createUserHeader } from "./test-utils";
 import axios from "axios";
 import { UserProfile } from "../auth/model";
 
-describe('Admin endpoints', () => {
+describe('User endpoints', () => {
   let adminHeader: object;
   let userHeader: object;
 
@@ -13,7 +13,7 @@ describe('Admin endpoints', () => {
 
 
   test('Get all users', async () => {
-    const users: UserProfile[] = (await axios.get(`${BASE_URL}/rest/admin/users/?search=ALL`, {headers: {...adminHeader}}))
+    const users: UserProfile[] = (await axios.get(`${BASE_URL}/rest/admin/users/?search=Alf`, {headers: {...adminHeader}}))
       .data
 
     const alfredo = users?.find(u => u.sub === 'google-oauth2|113300806490854534957')
