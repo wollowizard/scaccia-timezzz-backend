@@ -5,7 +5,7 @@ import requestLogger from "./request-logger";
 import express from 'express';
 import healthController from "./health-controller";
 import authMiddlewares, { adminMiddleware } from "./auth/auth-middleware";
-  import userController from "./timezone/user-controller";
+  import userController from "./user/user-controller";
 
 import mongoRepo from "./mongo";
 

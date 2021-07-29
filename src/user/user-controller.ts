@@ -1,6 +1,6 @@
 import express from "express";
 import asyncH from "express-async-handler";
-import userService from "../user/user-service";
+import userService from "./user-service";
 
 class UserController {
   public readonly router = express.Router();

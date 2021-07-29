@@ -3,7 +3,7 @@ import timezoneService from "./timezone-service";
 import { Timezone, UserTimezone } from "../model";
 import asyncH from "express-async-handler";
 import { isAdmin } from "../auth/auth-middleware";
-import { checkIntegerBetween, checkNonEmptyString } from "../utils/validation-utils";
+import { checkIntegerBetween, checkStringLengthBetween } from "../utils/validation-utils";
 
 class TimezoneController {
   public readonly router = express.Router();
@@ -66,8 +66,8 @@ class TimezoneController {
   }
 
   validateTimezone = (timezone: Timezone) => {
-    checkNonEmptyString(timezone?.timezoneCity)
-    checkNonEmptyString(timezone?.timezoneName)
+    checkStringLengthBetween(timezone?.timezoneCity, 1, 20)
+    checkStringLengthBetween(timezone?.timezoneName, 1, 20)
     checkIntegerBetween(timezone?.gmtDifferenceMinutes, -14 * 60, 14 * 60);
   }
 }
