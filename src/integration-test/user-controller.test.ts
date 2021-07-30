@@ -22,7 +22,7 @@ describe('User endpoints', () => {
 
   test('Get all users non admin', async () => {
     try {
-      (await axios.get(`${BASE_URL}/rest/admin/users/?search=ALL`, {headers: {...userHeader}}))
+      (await axios.get(`${BASE_URL}/rest/admin/users/`, {headers: {...userHeader}}))
       fail("Exception not trown")
     } catch (e) {
       expect(e.message).toContain("Request failed with status code 403")

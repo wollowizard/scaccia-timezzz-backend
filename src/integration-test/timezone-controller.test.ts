@@ -46,8 +46,10 @@ describe('Timezone endpoints', () => {
     })
   })
 
-  afterAll(() => {
-    return timezoneService.deleteTimezone(UID_USER, "__IntegrationTest/GMT")
+  afterAll(async () => {
+    await timezoneService.deleteTimezone(UID_USER, "__TestUser1/GMT")
+    await timezoneService.deleteTimezone(UID_USER, "__TestUser2/GMT")
+    await timezoneService.deleteTimezone(UID_ADMIN, "__TestAdmin/GMT")
   })
 
   const getTz = async (uid: string | undefined, tzName: string, asAdmin: boolean) => {
